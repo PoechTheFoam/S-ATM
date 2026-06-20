@@ -54,7 +54,7 @@ What the tool isn't guaranteed to do, what the tool does not do, what the tool c
 - Due to technical matters, the automation process may only save users from the effort, and the time reduced may not actually be that significant.
 
 ## Demo ##
-[Watch demo video](docs/assets/videos/autolog_mark_demo.gif)
+[Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
 
 ## 🔮 Future changes improvements 🔮 ##
 - [ ] Improve popup UI
