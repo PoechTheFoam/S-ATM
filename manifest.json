@@ -1,0 +1,20 @@
+{
+    "name":"S-ATM",
+    "description":"Tool that helps optimize workflow when using College Board's Student Question Bank",
+    "version":"1.0",
+    "manifest_version":3,
+    "action":{
+        "default_popup":"popup.html"
+    },
+    "background":{
+        "service_worker":"background.js"
+    },
+    "content_scripts":[{
+        "matches":["https://mypractice.collegeboard.org/*"],
+        "js":["content.js"],
+        "run_at":"document_idle"
+        }
+    ],
+    "permissions":["storage","scripting","activeTab","downloads"]
+
+}

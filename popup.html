@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <h2>Student Question Bank Automator</h2>
+    <section id="selection-rules">
+  <h3>Selection Rules</h3>
+  <label><input type="checkbox" id="only-active">Only use active questions</label>
+    </section>
+    <section id="automatic-selection">
+        <h3>What section of questions?</h3>
+    <select id="section">
+        <option value="" selected disabled>Select a section</option>
+        <option value="r&w">Reading & Writing</option>
+        <option value="math">Math</option>
+    </select><br>
+    <h3>How many questions in the set?</h3>
+    <input type="number" min="0" placeholder="#?"><br>
+    <h3>How many questions for each difficulty?</h3>
+    <label>Easy<input type="number" min="0" placeholder="#?" id="easy"></label>
+    <label>Medium<input type="number" min="0" placeholder="#?" id="medium"></label>
+    <label>Hard<input type="number" min="0" placeholder="#?" id="hard"></label> <br>
+    <label><input type="checkbox" id="exclude">Exclude Active Questions</label>
+    <details>
+        <summary class="main-heading">
+            Question Types
+        </summary>
+        <details >
+        <summary class="type-heading">
+            Information & Ideas
+        </summary>
+        <label class="sub" ><input type="checkbox" name="skill" value="cid"> Central Ideas and Details (CID)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="ce"> Command of Evidence (CE)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="inf"> Inferences (INF)</label> <br>
+        </details>
+
+        <details>
+        <summary class="type-heading">
+            Craft & Structure
+        </summary>
+        <label class="sub" ><input type="checkbox" name="skill" value="wic"> Words in Context (WIC)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="tsp"> Text Structure and Purpose (TSP)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="ctc"> Cross-Text Connections (CTC)</label> <br>
+        </details>
+        <details >
+        <summary class="type-heading">
+            Expression of Ideas
+        </summary>
+        <label class="sub" ><input type="checkbox" name="skill" value="rs"> Rhetorical Synthesis (RS)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="tra"> Transitions (TRA)</label> <br>
+        </details>
+
+        <details >
+        <summary class="type-heading">
+            Standard English Conventions
+        </summary>
+        <label class="sub" ><input type="checkbox" name="skill" value="bou"> Boundaries (BOU)</label> <br>
+        <label class="sub" ><input type="checkbox" name="skill" value="fss"> Form, Structure, and Sense (FSS)</label> <br>
+        </details>
+    </details>
+    </section>
+
+    <section id="filters">
+        <label><input type="checkbox" value="exclude">Exclude Active Questions</label>
+    </section>
+<br>
+    <section id="actions">
+        <input type="checkbox" id="toggle_marking">Mark Logged Questions? <br>
+        <input type="checkbox" id="toggle_log">Automatic Logging? <br>        
+        <input type="button" id="import_data" value="Import Data"><input type="file" width="40%" id="import_file" accept=".json,application/json" hidden><br>
+        <input type="button" id="export_data" value="Export Data"><br>
+        <p>Data involves both logged questions and setting preferences</p>
+        <input type="button" id="clear_log" value="Clear Logged Questions"> (CLEARS ALL LOGGED QUESTIONS)
+    </section>
+    <script src="popup.js"></script>
+</body>
+</html>
