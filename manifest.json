@@ -4,14 +4,11 @@
     "version":"1.0",
     "manifest_version":3,
     "action":{
-        "default_popup":"popup.html"
-    },
-    "background":{
-        "service_worker":"background.js"
+        "default_popup":"src/popup/popup.html"
     },
     "content_scripts":[{
         "matches":["https://mypractice.collegeboard.org/*"],
-        "js":["content.js"],
+        "js":["src/content/content.js"],
         "run_at":"document_idle"
         }
     ],
