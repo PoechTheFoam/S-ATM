@@ -7,9 +7,7 @@ document.addEventListener("DOMContentLoaded",async function (){
     let clear_log=document.querySelector("#clear_log");
     let settings = await loadSettings();
 
-    toggle_marking.checked=settings.toggle_marking;
-    toggle_log.checked=settings.toggle_log;
-    //will this change the UI?
+    refreshToggles();
 
     toggle_marking.addEventListener("change", async function (){
         settings.toggle_marking=toggle_marking.checked;
@@ -21,10 +19,9 @@ document.addEventListener("DOMContentLoaded",async function (){
         sendNewSettings(settings);
     });
 
-    export_data.addEventListener('click',()=>{
-        sendClicks("export");
+    export_data.addEventListener('click',async ()=>{
         let result=await chrome.storage.local.get("satm_state");
-        let satm_state=result.satm_state ?? {}; //assuming this is the shortened version of the previous if checks
+        let satm_state=result.satm_state ?? {};
         const exported_data={satm_state,exportedAt:new Date().toISOString()};
 
         const json=JSON.stringify(exported_data,null,2);
@@ -40,9 +37,11 @@ document.addEventListener("DOMContentLoaded",async function (){
         });
 
     })
-    import_data.addEventListener('click',()=>{
+    import_data.addEventListener('click', async ()=>{
+        await import_file.click();
+        settings=await loadSettings();
+        refreshToggles();
         sendClicks("import");
-        import_file.click();
     })
     import_file.addEventListener('change',async ()=>{
         let file=import_file.files[0];
@@ -64,8 +63,9 @@ document.addEventListener("DOMContentLoaded",async function (){
         await chrome.storage.local.set({satm_state:imported_state});
 
 
-        import_file.value='';
+        import_file.value=''; //reset
     })
+    
     clear_log.addEventListener('click',()=>{
         sendClicks("clear");
     })
@@ -77,18 +77,14 @@ function isPlainObject(value){
 
 async function saveSettings(settings){
     const saveTime=new Date().toISOString();
-        const result=await chrome.storage.local.get("satm_state");
-        let satm_state=result.satm_state;
-        if (satm_state===undefined) satm_state={};
-        if (satm_state.settings===undefined){
-            satm_state.settings={}
-        }
-        satm_state.settings=settings;
-        await chrome.storage.local.set({
-            satm_state:satm_state
-        }).catch((error)=>{
-            console.error(error);
-        });
+    const result=await chrome.storage.local.get("satm_state");
+    let satm_state=result.satm_state ?? {};
+    satm_state.settings=settings;
+    await chrome.storage.local.set({
+        satm_state:satm_state
+    }).catch((error)=>{
+        console.error(error);
+    });
 };
 
 async function loadSettings(){
@@ -116,6 +112,11 @@ async function sendNewSettings(settings){
     });
 
     await saveSettings(settings);
+}
+
+function refreshToggles(){
+    toggle_marking.checked=settings.toggle_marking;
+    toggle_log.checked=settings.toggle_log;
 }
 
 function sendClicks(event){

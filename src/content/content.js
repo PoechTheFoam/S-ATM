@@ -13,15 +13,15 @@ chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
         toggle_marking=settings.toggle_marking;
         toggle_log=settings.toggle_log;
     }
-    if (message.type==="export"){
-        exportData();
-    }
     if (message.type==="import"){
-        importData();
+        exported=await loadExportedQuestions();
+        settings=await loadSettings();
     }
+
     if (message.type==="clear"){
         await clearSavedLog();
     }
+    
     await refreshExportedMarking();
 })
 const popup=document.createElement('div');
