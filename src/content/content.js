@@ -3,7 +3,7 @@ let exported={};
 let toggle_marking=true;
 let toggle_log=true;
 let settings={};
-let IDs=[];
+let IDs=new Set();
 let isSaving=false;
 initialize();
 
@@ -24,6 +24,10 @@ chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
     
     await refreshExportedMarking();
 })
+
+let transitionTime=250;
+let confirmationTime=1000;
+
 const popup=document.createElement('div');
     popup.id="log_tracker";
     popup.style.position = 'fixed';
@@ -36,6 +40,8 @@ const popup=document.createElement('div');
     popup.style.borderRadius = '8px';
     popup.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     popup.style.zIndex = '999999';
+    popup.style.opacity = "1";
+    popup.style.transition = `opacity ${transitionTime}ms ease`;
     popup.innerHTML=`
     <div style="background: #f1f1f1; padding: 5px;border-bottom: 1px solid #ccc;">
     <div class="header">
@@ -53,7 +59,7 @@ const popup=document.createElement('div');
     </div>
     `;
 popup.querySelector("#close-btn").addEventListener('click',()=>{
-    popup.remove();
+    fadeTransition(0);
 })
 const export_confirm_btn=popup.querySelector("#export-confirm-btn");
 const confirm_msg=popup.querySelector("#confirm-msg");
@@ -64,10 +70,15 @@ export_confirm_btn.addEventListener('click',async ()=>{
     export_confirm_btn.textContent="Saving...";
     try{
         await saveQuestions(IDs);
-        if (IDs.length===1)confirm_msg.innerText=IDs.length+" ID marked as exported";
-        else confirm_msg.innerText=IDs.length+" IDs marked as exported"
+        if (IDs.size===1)confirm_msg.innerText=IDs.size+" ID marked as exported";
+        else confirm_msg.innerText=IDs.size+" IDs marked as exported"
         exported= await loadExportedQuestions();
         refreshExportedMarking();
+        // reset IDs
+
+        IDs.clear();
+        
+        fadeTransition(confirmationTime);
     }catch(error){
         confirm_msg.innerText="Save failed"
 
@@ -77,31 +88,67 @@ export_confirm_btn.addEventListener('click',async ()=>{
         export_confirm_btn.textContent="Mark as exported"
     }
 })
+
+let fadeTimerOuter=null;
+let fadeTimerInner=null;
+
+function cancelTimers(){
+    clearTimeout(fadeTimerOuter);
+    clearTimeout(fadeTimerInner);
+
+    fadeTimerInner=null;
+    fadeTimerOuter=null;
+
+    popup.style.opacity="1";
+}
+
+async function fadeTransition(delay=confirmationTime){
+    cancelTimers();
+
+    fadeTimerOuter=setTimeout(()=>{
+        popup.style.opacity="0";
+
+        fadeTimerInner=setTimeout(()=>{
+            popup.style.display="none";
+            popup.style.opacity="1";
+        },transitionTime);
+    },delay);
+}
+
 document.addEventListener('change',(event)=>{
     const target=event.target;
     if (target.matches("input[type='checkbox']") && target.closest("td.checked-column")){
-        const checked=document.querySelectorAll("td.checked-column input[type='checkbox']:checked");
-        IDs=getQuestionID(checked);
+
+        // getting the current checkbox that was changed
+        let current_ID=target.getAttribute("aria-labelledby");
+        let current_checked=target.checked;
+
+        // if the ID is found
+        if (IDs.has(current_ID)){
+            if (current_checked===false) IDs.delete(current_ID);
+        }
+
+        // if not found
+        else {
+            if (current_checked===true) IDs.add(current_ID);
+        }
+
         updateLog_Tracker(IDs);
     }
     else return;  
 })
-function getQuestionID(checked){
-    let output=[];
-    for (const element of checked){
-            output.push(element.getAttribute("aria-labelledby"));
-        }
-    return output;
-}
-function updateLog_Tracker(IDs){
+
+function updateLog_Tracker(){
     if (!document.getElementById('log_tracker')) document.body.appendChild(popup);
     if (document.getElementById('log_tracker')){
-        if (IDs.length===0){
+        cancelTimers();
+        popup.style.opacity="1";
+        if (IDs.size===0){
         popup.style.display='none';
         return;
         }
         popup.style.display='';
-        popup.querySelector("#selected-count").innerText="Selected: "+IDs.length;
+        popup.querySelector("#selected-count").innerText="Selected: "+IDs.size;
         const ID_list=popup.querySelector("#selected-IDs");
         ID_list.innerText='';
         for (const id of IDs){
@@ -190,9 +237,7 @@ function setUpTableObserver(checkbox){
             mutation.type==='attributes'||
             mutation.type==='characterData'            
         ){
-            console.log("Change detected");
             scheduleMarkExported();
-            console.log("re-marked!!");
             break;
         }
     }
