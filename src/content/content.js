@@ -1,8 +1,9 @@
 let checkbox=null;
 let exported={};
-let toggle_marking=true;
-let toggle_log=true;
-let settings={};
+let settings={
+    toggle_marking:true,
+    toggle_log:true
+};
 let IDs=new Set();
 let isSaving=false;
 initialize();
@@ -10,8 +11,6 @@ initialize();
 chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
     if (message.type==="settings_changed"){
         settings=message.settings;
-        toggle_marking=settings.toggle_marking;
-        toggle_log=settings.toggle_log;
     }
     if (message.type==="import"){
         exported=await loadExportedQuestions();
@@ -22,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
         await clearSavedLog();
     }
     
-    await refreshExportedMarking();
+    refreshExportedMarking();
 })
 
 let transitionTime=250;
@@ -43,23 +42,23 @@ const popup=document.createElement('div');
     popup.style.opacity = "1";
     popup.style.transition = `opacity ${transitionTime}ms ease`;
     popup.innerHTML=`
-    <div style="background: #f1f1f1; padding: 5px;border-bottom: 1px solid #ccc;">
-    <div class="header">
-    <h1 id="title" style="font-size:1.5rem; text-align:center;"><strong>Selected Questions</strong></h1> <br>
-    <h2 id="selected-count" style="font-size:1.2rem;">Selected: </h2>
+    <div style="background: #f1f1f1; padding: 5px;">
+    <div class="header" style="border-bottom: 1.5px solid #ccc; padding-bottom: 5px; line-height:1.1">
+    <h2 id="title" style="font-size:1.5rem; text-align:center;margin:0 0 6px 0">Selected Questions</h2>
+    <h3 id="selected-count" style="font-size:1.2rem; margin:0">Selected: </h3>
     </div>
-    <div class="body" style="padding: 5px;max-height:80px;overflow-y:auto;">
-    <ol id="selected-IDs"></ol>    
+    <div class="body" style="border-bottom: 1.5px solid #ccc; padding: 3px;max-height:80px;overflow-y:auto;margin-bottom:8px">
+    <ol id="selected-IDs" style="margin:4px 0; padding-left:24px"></ol>
     </div>
-    <div class="footer">
-    <button id="export-confirm-btn" style="padding: 10px 10px;">Mark as exported</button>
-    <button id="close-btn" style="padding: 10px 10px;">Close</button> <br>
-    <h3 id="confirm-msg" style="font-size:1rem;"></h3>
+    <div class="footer" style="padding-top:4px">
+    <button id="export-confirm-btn" style="padding: 10px; margin:5px">Mark as exported</button>
+    <button id="close-btn" style="padding: 10px;margin:5px">Close</button>
+    <h3 id="confirm-msg" style="font-size:1rem;margin=5px"></h3>
     </div>
     </div>
     `;
 popup.querySelector("#close-btn").addEventListener('click',()=>{
-    fadeTransition(0);
+    fadeOutTransition(0);
 })
 const export_confirm_btn=popup.querySelector("#export-confirm-btn");
 const confirm_msg=popup.querySelector("#confirm-msg");
@@ -69,7 +68,7 @@ export_confirm_btn.addEventListener('click',async ()=>{
     export_confirm_btn.disabled=true;
     export_confirm_btn.textContent="Saving...";
     try{
-        await saveQuestions(IDs);
+        await saveQuestions();
         if (IDs.size===1)confirm_msg.innerText=IDs.size+" ID marked as exported";
         else confirm_msg.innerText=IDs.size+" IDs marked as exported"
         exported= await loadExportedQuestions();
@@ -78,10 +77,10 @@ export_confirm_btn.addEventListener('click',async ()=>{
 
         IDs.clear();
         
-        fadeTransition(confirmationTime);
+        fadeOutTransition(confirmationTime);
     }catch(error){
         confirm_msg.innerText="Save failed"
-
+        console.log(error);
     }finally{
         isSaving=false;
         export_confirm_btn.disabled=false;
@@ -89,30 +88,46 @@ export_confirm_btn.addEventListener('click',async ()=>{
     }
 })
 
-let fadeTimerOuter=null;
-let fadeTimerInner=null;
+let fadeOutTimerOuter=null;
+let fadeOutTimerInner=null;
+let fadeInFrame=null;
 
-function cancelTimers(){
-    clearTimeout(fadeTimerOuter);
-    clearTimeout(fadeTimerInner);
+function cancelFadeAnimations(){
+    clearTimeout(fadeOutTimerOuter);
+    clearTimeout(fadeOutTimerInner);
+    if (fadeInFrame) cancelAnimationFrame(fadeInFrame);
 
-    fadeTimerInner=null;
-    fadeTimerOuter=null;
+
+    fadeOutTimerInner=null;
+    fadeOutTimerOuter=null;
+    fadeInFrame=null;
 
     popup.style.opacity="1";
 }
 
-async function fadeTransition(delay=confirmationTime){
-    cancelTimers();
+function fadeOutTransition(delay=confirmationTime){
+    cancelFadeAnimations();
 
-    fadeTimerOuter=setTimeout(()=>{
+    fadeOutTimerOuter=setTimeout(()=>{
         popup.style.opacity="0";
 
-        fadeTimerInner=setTimeout(()=>{
+        fadeOutTimerInner=setTimeout(()=>{
             popup.style.display="none";
             popup.style.opacity="1";
         },transitionTime);
     },delay);
+}
+
+function fadeInTransition(){
+    cancelFadeAnimations();
+
+    popup.style.display='';
+    popup.style.opacity="0";
+
+    fadeInFrame=requestAnimationFrame(()=>{
+        fadeInFrame=null;
+        popup.style.opacity="1";
+    })
 }
 
 document.addEventListener('change',(event)=>{
@@ -141,13 +156,12 @@ document.addEventListener('change',(event)=>{
 function updateLog_Tracker(){
     if (!document.getElementById('log_tracker')) document.body.appendChild(popup);
     if (document.getElementById('log_tracker')){
-        cancelTimers();
-        popup.style.opacity="1";
+        cancelFadeAnimations();
         if (IDs.size===0){
-        popup.style.display='none';
+        fadeOutTransition(0);
         return;
         }
-        popup.style.display='';
+        fadeInTransition();
         popup.querySelector("#selected-count").innerText="Selected: "+IDs.size;
         const ID_list=popup.querySelector("#selected-IDs");
         ID_list.innerText='';
@@ -161,7 +175,7 @@ function updateLog_Tracker(){
         return;
     }
 }
-async function saveQuestions(IDs){
+async function saveQuestions(){
     const saveTime=new Date().toISOString();
         const result=await chrome.storage.local.get("satm_state");
         let satm_state=result.satm_state;
@@ -199,8 +213,6 @@ async function initialize(){
     if (checkbox) {
         exported=await loadExportedQuestions();
         settings=await loadSettings();
-        toggle_marking=settings.toggle_marking;
-        toggle_log=settings.toggle_log;
         console.log("exported keys:", Object.keys(exported));
         refreshExportedMarking();
         setUpTableObserver(checkbox);
@@ -245,7 +257,7 @@ function setUpTableObserver(checkbox){
     observer.observe(target,{childList:true,subtree:true,attributes:true,characterData:true,attributeFilter: ["id", "aria-label", "aria-labelledby"]
 }) 
 }
-async function markExportedQuestions(exported){
+function markExportedQuestions(exported){
     let visibleCheckboxes=document.querySelectorAll("td.checked-column input[type='checkbox']");
     for (const vcb of visibleCheckboxes){
         const row=vcb.closest('tr');
@@ -273,8 +285,8 @@ function unmarkExportedQuestions(){
         row.style.backgroundColor="transparent";
     }
 }
-async function refreshExportedMarking(){
-    if (toggle_marking) markExportedQuestions(exported);
+function refreshExportedMarking(){
+    if (settings.toggle_marking) markExportedQuestions(exported);
     else unmarkExportedQuestions();
 }
 

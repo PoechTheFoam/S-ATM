@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded",async function (){
 
         chrome.downloads.download({
             url,
-            filename = `satm-log-${new Date().toISOString().slice(0, 10)}.json`,
+            filename: `satm-log-${new Date().toISOString().slice(0, 10)}.json`,
             saveAs:true
         },()=>{
             URL.revokeObjectURL(url);
@@ -57,9 +57,10 @@ document.addEventListener("DOMContentLoaded",async function (){
 
         const imported_state=data.satm_state;
 
-        if (imported_state.exported===undefined )
+        const imported_exported=imported_state?.exported ?? {};
         
         const result=await chrome.storage.local.get("satm_state");
+        
         await chrome.storage.local.set({satm_state:imported_state});
 
 
@@ -69,6 +70,11 @@ document.addEventListener("DOMContentLoaded",async function (){
     clear_log.addEventListener('click',()=>{
         sendClicks("clear");
     })
+
+    function refreshToggles(){
+        toggle_marking.checked=settings.toggle_marking;
+        toggle_log.checked=settings.toggle_log;
+    }
 });
 
 function isPlainObject(value){
@@ -112,11 +118,6 @@ async function sendNewSettings(settings){
     });
 
     await saveSettings(settings);
-}
-
-function refreshToggles(){
-    toggle_marking.checked=settings.toggle_marking;
-    toggle_log.checked=settings.toggle_log;
 }
 
 function sendClicks(event){
