@@ -44,33 +44,41 @@ const popup=document.createElement('div');
     popup.innerHTML=`
     <div style="background: #f1f1f1; padding: 5px;">
     <div class="header" style="border-bottom: 1.5px solid #ccc; padding-bottom: 5px; line-height:1.1">
-    <h2 id="title" style="font-size:1.5rem; text-align:center;margin:0 0 6px 0">Selected Questions</h2>
+    <h2 id="title" style="font-size:1.5rem; text-align:center;margin:0 0 6px 0">Pending export</h2>
     <h3 id="selected-count" style="font-size:1.2rem; margin:0">Selected: </h3>
     </div>
     <div class="body" style="border-bottom: 1.5px solid #ccc; padding: 3px;max-height:80px;overflow-y:auto;margin-bottom:8px">
     <ol id="selected-IDs" style="margin:4px 0; padding-left:24px"></ol>
     </div>
     <div class="footer" style="padding-top:4px">
-    <button id="export-confirm-btn" style="padding: 10px; margin:5px">Mark as exported</button>
-    <button id="close-btn" style="padding: 10px;margin:5px">Close</button>
-    <h3 id="confirm-msg" style="font-size:1rem;margin=5px"></h3>
+    <button id="export-confirm-btn" style="padding: 3px; margin:5px">Mark as exported</button>
+    <button id="clear-btn" style="padding: 3px;margin:5px">Clear pending list</button>
+    <button id="disable_log" style="padding:3px;margin:5px">Disable auto-logging</button> (Will also disable this popup)
+    <h3 id="confirm-msg" style="font-size:1rem;margin:5px"></h3>
     </div>
     </div>
     `;
-popup.querySelector("#close-btn").addEventListener('click',()=>{
+popup.querySelector("#clear-btn").addEventListener('click',()=>{
     fadeOutTransition(0);
+    IDs=new Set();
 })
 const export_confirm_btn=popup.querySelector("#export-confirm-btn");
 const confirm_msg=popup.querySelector("#confirm-msg");
+confirm_msg.style.transition=`opacity ${transitionTime}ms ease`;
 export_confirm_btn.addEventListener('click',async ()=>{
     if (isSaving) return;
     isSaving=true;
     export_confirm_btn.disabled=true;
     export_confirm_btn.textContent="Saving...";
     try{
-        await saveQuestions();
-        if (IDs.size===1)confirm_msg.innerText=IDs.size+" ID marked as exported";
-        else confirm_msg.innerText=IDs.size+" IDs marked as exported"
+        const IDs_count=IDs.size;
+        const IDs_to_save=[...IDs];
+
+        await saveQuestions(IDs_to_save);
+        
+        const message = IDs_count === 1 ? "1 question marked as exported" : `${IDs_count} questions marked as exported`;
+        showConfirmMessage(message);
+        
         exported= await loadExportedQuestions();
         refreshExportedMarking();
         // reset IDs
@@ -79,7 +87,7 @@ export_confirm_btn.addEventListener('click',async ()=>{
         
         fadeOutTransition(confirmationTime);
     }catch(error){
-        confirm_msg.innerText="Save failed"
+        showConfirmMessage("Save failed :3");
         console.log(error);
     }finally{
         isSaving=false;
@@ -87,6 +95,33 @@ export_confirm_btn.addEventListener('click',async ()=>{
         export_confirm_btn.textContent="Mark as exported"
     }
 })
+
+let confirm_fadeInFrame=null;
+
+function cancelConfirmFadeAnimations(){
+    if (confirm_fadeInFrame) cancelAnimationFrame(confirm_fadeInFrame);
+
+    confirm_fadeInFrame=null;
+
+    confirm_msg.style.opacity="1";
+}
+
+function clearConfirmMessage(){
+    confirm_msg.innerText='';
+}
+
+function showConfirmMessage(message=''){
+    cancelConfirmFadeAnimations();
+
+    confirm_msg.style.display='';
+    confirm_msg.style.opacity="0";
+    confirm_msg.innerText=message;
+
+    confirm_fadeInFrame=requestAnimationFrame(()=>{
+        confirm_fadeInFrame=null;
+        confirm_msg.style.opacity="1";
+    })
+}
 
 let fadeOutTimerOuter=null;
 let fadeOutTimerInner=null;
@@ -114,6 +149,7 @@ function fadeOutTransition(delay=confirmationTime){
         fadeOutTimerInner=setTimeout(()=>{
             popup.style.display="none";
             popup.style.opacity="1";
+            confirm_msg.innerText='';
         },transitionTime);
     },delay);
 }
@@ -161,6 +197,7 @@ function updateLog_Tracker(){
         fadeOutTransition(0);
         return;
         }
+        clearConfirmMessage();
         fadeInTransition();
         popup.querySelector("#selected-count").innerText="Selected: "+IDs.size;
         const ID_list=popup.querySelector("#selected-IDs");
@@ -175,7 +212,7 @@ function updateLog_Tracker(){
         return;
     }
 }
-async function saveQuestions(){
+async function saveQuestions(IDs_to_save){
     const saveTime=new Date().toISOString();
         const result=await chrome.storage.local.get("satm_state");
         let satm_state=result.satm_state;
@@ -183,7 +220,7 @@ async function saveQuestions(){
         if (satm_state.exported===undefined){
             satm_state.exported={}
         }
-    for (const id of IDs){
+    for (const id of IDs_to_save){
         satm_state.exported[id]={exportedAt:saveTime};
     };
     await chrome.storage.local.set({
