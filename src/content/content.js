@@ -53,19 +53,33 @@ const popup=document.createElement('div');
     <div class="footer" style="padding-top:4px">
     <button id="export-confirm-btn" style="padding: 3px; margin:5px">Mark as exported</button>
     <button id="clear-btn" style="padding: 3px;margin:5px">Clear pending list</button>
-    <button id="disable_log" style="padding:3px;margin:5px">Disable auto-logging</button> (Will also disable this popup)
+    <button id="disable-log-btn" style="padding:3px;margin:5px">Disable auto-logging</button> (Will also disable this popup)
     <h3 id="confirm-msg" style="font-size:1rem;margin:5px"></h3>
     </div>
     </div>
     `;
+const export_confirm_btn=popup.querySelector("#export-confirm-btn");
+const confirm_msg=popup.querySelector("#confirm-msg");
+
+confirm_msg.style.transition=`opacity ${transitionTime}ms ease`;
+
 popup.querySelector("#clear-btn").addEventListener('click',()=>{
     fadeOutTransition(0);
     IDs=new Set();
 })
-const export_confirm_btn=popup.querySelector("#export-confirm-btn");
-const confirm_msg=popup.querySelector("#confirm-msg");
-confirm_msg.style.transition=`opacity ${transitionTime}ms ease`;
+
+popup.querySelector("#disable-log-btn").addEventListener("click",()=>{
+    settings.toggle_log=false;
+    saveSettings();
+    cancelConfirmFadeAnimations();
+    clearConfirmMessage();
+    cancelFadeAnimations();
+    IDs.clear();
+    popup.remove();
+})
+
 export_confirm_btn.addEventListener('click',async ()=>{
+    if (!settings.toggle_log) return;
     if (isSaving) return;
     isSaving=true;
     export_confirm_btn.disabled=true;
@@ -166,7 +180,9 @@ function fadeInTransition(){
     })
 }
 
+//related to popup tracker
 document.addEventListener('change',(event)=>{
+    if (!settings.toggle_log) return;
     const target=event.target;
     if (target.matches("input[type='checkbox']") && target.closest("td.checked-column")){
 
@@ -190,8 +206,8 @@ document.addEventListener('change',(event)=>{
 })
 
 function updateLog_Tracker(){
-    if (!document.getElementById('log_tracker')) document.body.appendChild(popup);
-    if (document.getElementById('log_tracker')){
+    if (!document.getElementById('log_tracker')&&settings.toggle_log) document.body.appendChild(popup);
+    if (document.getElementById('log_tracker')&&settings.toggle_log){
         cancelFadeAnimations();
         if (IDs.size===0){
         fadeOutTransition(0);
