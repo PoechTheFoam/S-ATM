@@ -3,14 +3,12 @@ A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) 
 
 ## ⭐ Features ⭐ ##
 - Automatic question question logging along with visual markers for "exported questions".
-- Automated question set generation from OFFICIAL SOURCES.
-
+- Import/Export features to transfer/backup saved data
 ## 🤔 Why it was created 🤔 ##
 ### 1. Tracking questions ###
-- Having to keep/maintain separate text file/notes to track questions you already completed on the question bank takes around 3-5 minutes each time, which adds up overtime
-- In doing so, you might also have to had come up with abbreviated names, or conventions for easy + fast logging **manually**
-- You'd also have to count top-down, or find the specific question IDs that you ended the last section on.
-Here's what I did for example:
+- Manually tracking exported questions take 3-5 minutes, which adds up.
+- Optimization necessary if users want to manually log faster.
+Not fully optimized, but an example of manual logging:
 
 ```
 II:
@@ -29,16 +27,15 @@ II:
 ...
 ```
 ### 2. Question Selection  ###
-- I found it annoying having to change question filters repeatedly, since i wanted a mix of Easy, Medium, and Hard questions for different question categories as well.
-- I noticed that this took me around 3-5 minutes every time I wanted to create a set of 12 questions.
-- Additionally, there were also an abundance of mini-tasks I had to do during the process, which makes it mistake-prone busy work (remembering to log what questions i exported, remembering to clear filters, remembereing to clear previously selected questions, counting from top down to see how far i got into a page, exporting both a key version and a no-headers version,...)
+- Maintaining ratio of question difficulty was an annoyance.
+- Additionally, work flow may be mistake prone, as it is a chain of actions: logging the exported questions, clearing filters, clearing previously selected questions, and exporting both a key version and a no-headers version 
 
 ## 🤹 Workflow 🤹 ##
 ### 1. Automatic Logging + Marking ###
-- The extension automatically tracks questions selected by the user
-- The user confirms whether they have exported the questions (analogous to having completed the questions)
-- Tool saves the exported question IDs, then mark visible questions with IDs matching them (blue highlights)
-### 2. Automatic question set creator ###
+- Questions user select are tracked.
+- User confirms questions export.
+- Tool saves the exported IDs, then mark questions with those IDs on the page.
+### 2. Automatic question set creator (to be implemented) ###
 - Users select what questions section (R&W)
 - Categories of questions (Words in Context, Boundaries,...)
 - Number of questions
@@ -47,18 +44,17 @@ II:
 - Users only have to hit the export button twice (for key and no-key versions)
 
 ## 😥 Limitations 😥 ##
-What the tool isn't guaranteed to do, what the tool does not do, what the tool can still improve on
-- The extension popup UI needs heavy improvement
-- There is no guarantee the extension would still continue to work if College Board decides to overhaul their web UI design/properties
-- Requires user confirmation for most things, like marking questions as exported, or question properties selection
-- Due to technical matters, the automation process may only save users from the effort, and the time reduced may not actually be that significant.
+- Overhaul for UI
+- Flexibility (extension might break of College Board makes radical changes to their site)
+- Requires some user intervention
+- Automation may not be fully polished.
 
 ## Demo ##
 ![Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
 
 ## 🔮 Future changes improvements 🔮 ##
 - [ ] Improve popup UI
-- [ ] Add demo video
+- [ ] Fully implement automation feaature/Remove if not worthwhile.
 - [ ] Add a section for users to mark what questions they got wrong, then a dashboard for 	those mistakes so users can plan next actions easier.
 - [ ] Reasoning for each mistakes too, self-reflections on why the users got the questions 	wrong/shaky answers, why answers felt tempting
 - [ ] AI features could offer suggestions/recommendations regarding how to improve those 	areas.

@@ -8,20 +8,29 @@ let IDs=new Set();
 let isSaving=false;
 initialize();
 
-chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
-    if (message.type==="settings_changed"){
-        settings=message.settings;
+chrome.storage.onChanged.addListener((changes, areaName)=>{
+    if (areaName==="local"){
+            for (let [key, {oldValue, newValue}] of Object.entries(changes)){
+                if (key==="satm_state"){
+                    let result = newValue;
+                    if (!result) {
+                        settings={toggle_marking: true,toggle_log: true};
+                        exported={};
+                    }else{
+                        settings= {toggle_marking: newValue.settings?.toggle_marking?? true,toggle_log: newValue.settings?.toggle_log?? true};
+                        if (settings.toggle_log) disableLog_Tracker();
+                        exported= newValue.exported ?? {};
+                    }
+                refreshExportedMarking();
+                }
+            }
     }
-    if (message.type==="import"){
-        exported=await loadExportedQuestions();
-        settings=await loadSettings();
-    }
+})
 
+chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
     if (message.type==="clear"){
         await clearSavedLog();
     }
-    
-    refreshExportedMarking();
 })
 
 let transitionTime=250;
@@ -58,6 +67,15 @@ const popup=document.createElement('div');
     </div>
     </div>
     `;
+
+function disableLog_Tracker(){
+    cancelConfirmFadeAnimations();
+    clearConfirmMessage();
+    cancelFadeAnimations();
+    IDs.clear();
+    popup.remove();
+}
+
 const export_confirm_btn=popup.querySelector("#export-confirm-btn");
 const confirm_msg=popup.querySelector("#confirm-msg");
 
@@ -71,11 +89,7 @@ popup.querySelector("#clear-btn").addEventListener('click',()=>{
 popup.querySelector("#disable-log-btn").addEventListener("click",()=>{
     settings.toggle_log=false;
     saveSettings();
-    cancelConfirmFadeAnimations();
-    clearConfirmMessage();
-    cancelFadeAnimations();
-    IDs.clear();
-    popup.remove();
+    disableLog_Tracker();
 })
 
 export_confirm_btn.addEventListener('click',async ()=>{
@@ -93,10 +107,6 @@ export_confirm_btn.addEventListener('click',async ()=>{
         const message = IDs_count === 1 ? "1 question marked as exported" : `${IDs_count} questions marked as exported`;
         showConfirmMessage(message);
         
-        exported= await loadExportedQuestions();
-        refreshExportedMarking();
-        // reset IDs
-
         IDs.clear();
         
         fadeOutTransition(confirmationTime);
@@ -231,14 +241,14 @@ function updateLog_Tracker(){
 async function saveQuestions(IDs_to_save){
     const saveTime=new Date().toISOString();
         const result=await chrome.storage.local.get("satm_state");
-        let satm_state=result.satm_state;
-        if (satm_state===undefined) satm_state={};
-        if (satm_state.exported===undefined){
-            satm_state.exported={}
-        }
+        let satm_state=result?.satm_state ?? {};
+        let stored_exported= satm_state.exported ?? {};
+        satm_state.exported=stored_exported;
+
+
     for (const id of IDs_to_save){
-        satm_state.exported[id]={exportedAt:saveTime};
-    };
+        stored_exported[id]={exportedAt:saveTime};
+    }; // can't the field variable exported replace this whole section?
     await chrome.storage.local.set({
             satm_state:satm_state
         }).catch((error)=>{
@@ -247,13 +257,13 @@ async function saveQuestions(IDs_to_save){
 }
 async function loadExportedQuestions(){
     const result=await chrome.storage.local.get("satm_state");
-    if (result===undefined||result.satm_state===undefined||result.satm_state.exported===undefined) return {};
+    if (!result||!result.satm_state||!result.satm_state.exported) return {};
     return result.satm_state.exported;
     
 }
 async function loadSettings(){
     const result=await chrome.storage.local.get("satm_state")
-    const settings=result.satm_state?.settings;
+    const settings=result?.satm_state?.settings;
 
     return {
         toggle_marking: settings?.toggle_marking ?? true,
