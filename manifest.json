@@ -3,8 +3,15 @@
     "description":"Tool that helps optimize workflow when using College Board's Student Question Bank",
     "version":"1.0",
     "manifest_version":3,
+    "icons": {
+    "16": "public/icons/images.png",
+    "32": "public/icons/images.png",
+    "48": "public/icons/images.png",
+    "128": "public/icons/images.png"
+    },
     "action":{
-        "default_popup":"src/popup/popup.html"
+        "default_popup":"src/popup/popup.html",
+        "default_icon": "public/icons/images.png"
     },
     "content_scripts":[{
         "matches":["https://mypractice.collegeboard.org/*"],
