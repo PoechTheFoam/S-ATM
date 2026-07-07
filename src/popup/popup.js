@@ -5,18 +5,35 @@ document.addEventListener("DOMContentLoaded",async function (){
     let import_data=document.querySelector("#import_data");
     let import_file=document.querySelector("#import_file")
     let clear_log=document.querySelector("#clear_log");
+    let reset_settings=document.querySelector("#reset_settings")
     let settings = await loadSettings();
+    
+    chrome.storage.onChanged.addListener((changes, areaName)=>{
+    if (areaName==="local"){
+            for (let [key, {oldValue, newValue}] of Object.entries(changes)){
+                if (key==="satm_state"){
+                    let result = newValue;
+                    if (!result) {
+                        settings={toggle_marking: true,toggle_log: true};
+                    }else{
+                        settings= {toggle_marking: newValue.settings?.toggle_marking?? true,toggle_log: newValue.settings?.toggle_log?? true};
+                    }
+                refreshToggles();
+                }
+            }
+        }
+    })
 
     refreshToggles();
 
     toggle_marking.addEventListener("change", async function (){
         settings.toggle_marking=toggle_marking.checked;
-        sendNewSettings(settings);
+        await saveSettings(settings);
     });
 
     toggle_log.addEventListener("change", async function (){
         settings.toggle_log=toggle_log.checked;
-        sendNewSettings(settings);
+        await saveSettings(settings);
     });
 
     export_data.addEventListener('click',async ()=>{
@@ -37,11 +54,8 @@ document.addEventListener("DOMContentLoaded",async function (){
         });
 
     })
-    import_data.addEventListener('click', async ()=>{
-        await import_file.click();
-        settings=await loadSettings();
-        refreshToggles();
-        sendClicks("import");
+    import_data.addEventListener('click', ()=>{
+        import_file.click();
     })
     import_file.addEventListener('change',async ()=>{
         let file=import_file.files[0];
@@ -63,12 +77,41 @@ document.addEventListener("DOMContentLoaded",async function (){
         
         await chrome.storage.local.set({satm_state:imported_state});
 
+        settings=await loadSettings();
+        refreshToggles();
 
         import_file.value=''; //reset
     })
-    
-    clear_log.addEventListener('click',()=>{
-        sendClicks("clear");
+    let timer=null;
+    clear_log.addEventListener('click',async function(){
+        if (clear_log.getAttribute("data-state")==="initial"){
+            let reset_timer=5;
+            clear_log.setAttribute("data-state","confirm");
+            clear_log.value=`Click again to clear ${reset_timer}s`;
+            timer= setInterval(()=>{
+                reset_timer--;
+                clear_log.value=`Click again to clear ${reset_timer}s`;
+                if (reset_timer<=0){
+                    clearInterval(timer);
+                    clear_log.value=`Clear exported history`;
+                    clear_log.setAttribute("data-state","initial");
+                    }
+                },1000);
+                return;
+            }
+            else{
+                clearInterval(timer);
+                timer=null;
+                reset_timer=5;
+                await clearSavedLog();
+            }
+            clear_log.setAttribute("data-state","initial");
+            clear_log.value=`Clear exported history`;
+    })
+
+    reset_settings.addEventListener('click',async function (){
+        await resetSettings();
+        loadSettings();
     })
 
     function refreshToggles(){
@@ -103,30 +146,19 @@ async function loadSettings(){
     }
 };
 
-async function sendNewSettings(settings){
-    chrome.tabs.query({active:true, currentWindow:true}, function(tabs){
-        let activeTab=tabs[0]?.id;
-        if (!activeTab) return;
+async function clearSavedLog() {
+    let result=await chrome.storage.local.get("satm_state");
+    let satm_state=result.satm_state;
+    if (satm_state===undefined) return; //because exported wouldn't exist anyway
+    satm_state.exported={};
+    await chrome.storage.local.set({satm_state:satm_state});
+    exported={};
+};
 
-        chrome.tabs.sendMessage(activeTab,{
-            type:"settings_changed",
-            settings:{
-                toggle_marking:toggle_marking.checked,
-                toggle_log:toggle_log.checked
-            }
-        });
-    });
-
-    await saveSettings(settings);
-}
-
-function sendClicks(event){
-        chrome.tabs.query({active:true, currentWindow:true}, function(tabs){
-        let activeTab=tabs[0]?.id;
-        if (!activeTab) return;
-
-        chrome.tabs.sendMessage(activeTab,{
-            type:event
-        });
-    });
+async function resetSettings(){
+    let result=await chrome.storage.local.get("satm_state");
+    let satm_state=result.satm_state;
+    if (satm_state===undefined) return; //because exported wouldn't exist anyway
+    satm_state.settings={toggle_marking:true,toggle_log:true};
+    await chrome.storage.local.set({satm_state:satm_state});
 }

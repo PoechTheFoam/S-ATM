@@ -18,7 +18,7 @@ chrome.storage.onChanged.addListener((changes, areaName)=>{
                         exported={};
                     }else{
                         settings= {toggle_marking: newValue.settings?.toggle_marking?? true,toggle_log: newValue.settings?.toggle_log?? true};
-                        if (settings.toggle_log) disableLog_Tracker();
+                        if (!settings.toggle_log) disableLog_Tracker();
                         exported= newValue.exported ?? {};
                     }
                 refreshExportedMarking();
@@ -27,11 +27,6 @@ chrome.storage.onChanged.addListener((changes, areaName)=>{
     }
 })
 
-chrome.runtime.onMessage.addListener(async (message,sender,sendResponse)=>{
-    if (message.type==="clear"){
-        await clearSavedLog();
-    }
-})
 
 let transitionTime=250;
 let confirmationTime=1000;
@@ -352,25 +347,6 @@ function refreshExportedMarking(){
     if (settings.toggle_marking) markExportedQuestions(exported);
     else unmarkExportedQuestions();
 }
-
-async function exportData(){
-
-}
-
-async function importData(){
-
-}
-
-async function clearSavedLog() {
-    let result=await chrome.storage.local.get("satm_state");
-    let satm_state=result.satm_state;
-    if (satm_state===undefined) return; //because exported wouldn't exist anyway
-    satm_state.exported={};
-    await chrome.storage.local.set({satm_state:satm_state});
-    exported={};
-    console.log("Log cleared yayay :3")
-}
-
 
 
 let markScheduled=false;

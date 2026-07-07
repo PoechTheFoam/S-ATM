@@ -1,48 +1,83 @@
 html,
 body{
-    width: 360px;
-    min-height: 520px;
-    margin: 0;
+    width: 250px;
+    min-height: 250px;
     padding: 0;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     box-sizing: border-box;
 }
 body{
-    padding:20px;
+    padding:10px;
     overflow-y:auto;
+    margin:0;
 }
 *{
     box-sizing: border-box;
+    line-height: 1.2;
 }
 
-h2 {
-  margin: 0 0 16px;
-  font-size: 20px;
+#headers {
+  background-color: rgb(204, 240, 255);
+  font-size: 13px;
+  font-weight: bold;
+  text-align:center;
+  border:2px solid lightblue;
+  border-radius: 5px;
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  width: fit-content;
+  margin-bottom: 8px;
+  margin: 0 auto 8px;
 }
 
-h3 {
-  margin: 14px 0 6px;
-  font-size: 14px;
+section {
+    background: gainsboro;
+    border:thin solid grey;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 8px 6px -2px rgba(0, 0, 0, 0.3);
+    width: fit-content;
+    margin:0 auto 8px;
 }
 
-input[type="number"],
-button {
-  width: 15%;
-  padding: 7px;
-  margin-bottom: 6px;
+
+input[type="button"] {
+  padding: 3px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  border:thin solid black;
+  box-shadow: 1px rgba(0, 0, 0, 0.3);
+  font-size: small;
+  width:fit-content;
 }
+input[type="button"]:hover{
+  filter:saturate(120%);
+  text-decoration: underline;
+}
+input[type="button"]:active{
+  filter:saturate(180%);
+  font-weight:bold;
+}
+
+input[type="number"]{
+  width: 5ch;
+}
+
 input[type="checkbox"]{
     width:auto;
-    margin:0;
+    margin: 5px;;
+    padding: 3px;
+    font-size: 10px;
+    font-weight: bold;
 }
 .main-heading {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 700;
   margin: 18px 0 8px;
 }
 
 .type-heading {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 700;
   cursor: pointer;
   padding: 6px 8px;
@@ -52,9 +87,16 @@ input[type="checkbox"]{
 }
 
 .sub{
-    display: flex;
     align-items: center;
-    gap: 6px;
-    margin: 7px 0 7px 14px;
-    font-size: 13px;
+    margin: 3px;
+    font-size: 10px;
+}
+.area_label{
+  margin:0px auto 3px;
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  background-color: rgb(204, 240, 255);
+  border:2px solid lightblue;
+  width: fit-content;
+  border-radius: 5px;
 }
