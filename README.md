@@ -4,6 +4,18 @@ A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) 
 ## ⭐ Features ⭐ ##
 - Automatic question question logging along with visual markers for "exported questions".
 - Import/Export features to transfer/backup saved data
+
+## 🤓 Installation 🤓 ##
+1. Download the latest release ZIP
+2. Extract it
+3. Open the extensions page
+4. Enable Developer mode
+5. Choose Load unpacked
+6. Select the extracted folder
+
+For Chrome:
+![Watch instruction video](docs/assets/videos/instruction_video.mp4)
+
 ## 🤔 Why it was created 🤔 ##
 ### 1. Tracking questions ###
 - Manually tracking exported questions take 3-5 minutes, which adds up.
