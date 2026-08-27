@@ -6,7 +6,8 @@ A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) 
 - Import/Export features to transfer/backup saved data
 
 ## 🤓 Installation 🤓 ##
-1. Download the latest release ZIP
+1. Download the latest release ZIP 
+(https://github.com/PoechTheFoam/S-ATM/archive/refs/tags/v.1.0.zip)
 2. Extract it
 3. Open the extensions page
 4. Enable Developer mode
