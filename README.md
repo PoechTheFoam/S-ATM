@@ -18,7 +18,7 @@ For Windows machines using Chrome, or an equivalent Chromium-based browser:
 4. Enable Developer mode
 5. Choose Load unpacked
 6. Open the extracted folder, until you see these 3 folders:
-[Folders](docs/assets/images/folders.png)
+[!Folders](docs/assets/images/folders.png)
 7. Click Select
 [Watch instruction video](docs/assets/videos/instruction_video.mp4)
 
