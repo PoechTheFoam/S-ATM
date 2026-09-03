@@ -22,6 +22,9 @@ For Windows machines using Chrome, or an equivalent Chromium-based browser:
 7. Click Select
 [Watch instruction video](docs/assets/videos/instruction_video.mp4)
 
+For iOS/Linux, or other browsers:
+(Not available, any contribution would be appreciated!)
+
 ## Why it was created ##
 ### 1. Tracking questions ###
 - Manually tracking exported questions take 3-5 minutes, which adds up.
