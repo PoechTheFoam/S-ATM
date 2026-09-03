@@ -1,14 +1,14 @@
 # 💳 S-ATM 💳 #
 A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) to help students have an easier time using College Board's Question Bank
-
-##  Features  ##
+## Using the extension ##
+###  1. Features  ###
 - Automatic question logging along with visual markers for "exported questions".
 - Import/Export features to transfer/backup saved data
 
-## Demo ##
+### 2. Demo ###
 ![Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
 
-## Installation ##
+### 3. Installation ###
 1. Download the latest release ZIP 
 (https://github.com/PoechTheFoam/S-ATM/archive/refs/tags/v.1.0.zip)
 2. Extract it
