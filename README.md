@@ -5,6 +5,9 @@ A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) 
 - Automatic question logging along with visual markers for "exported questions".
 - Import/Export features to transfer/backup saved data
 
+## Demo ##
+![Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
+
 ## Installation ##
 1. Download the latest release ZIP 
 (https://github.com/PoechTheFoam/S-ATM/archive/refs/tags/v.1.0.zip)
@@ -48,13 +51,9 @@ II:
 - User confirms questions export.
 - Tool saves the exported IDs, then mark questions with those IDs on the page.
 
-
 ## Limitations ##
 - Flexibility (extension might break if College Board makes radical changes to their site)
 - Requires some user intervention
-
-## Demo ##
-![Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
 
 ## Future changes improvements ##
 - [ ] Fully implement automation feature.
