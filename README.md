@@ -9,15 +9,17 @@ A web extension, built for Chrome-based browsers (such as Opera GX, Chrome,...) 
 ![Watch demo video](docs/assets/videos/auto_log_mark_demo.gif)
 
 ### 3. Installation ###
+
+For Windows machines using Chrome, or an equivalent Chromium-based browser:
 1. Download the latest release ZIP 
 (https://github.com/PoechTheFoam/S-ATM/archive/refs/tags/v.1.0.zip)
 2. Extract it
 3. Open the extensions page
 4. Enable Developer mode
 5. Choose Load unpacked
-6. Select the extracted folder
-
-For Chrome:
+6. Open the extracted folder, until you see these 3 folders:
+<img width="262" height="89" alt="image" src="https://github.com/user-attachments/assets/85afca98-9787-4891-b139-07110eaa519e" />
+7. Click Select
 [Watch instruction video](docs/assets/videos/instruction_video.mp4)
 
 ## Why it was created ##
